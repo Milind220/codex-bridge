@@ -70,6 +70,12 @@ struct JwtClaims {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let raw_args: Vec<String> = env::args().collect();
+    if raw_args.iter().any(|a| a == "--version" || a == "-V") {
+        println!("{}", env!("CARGO_PKG_VERSION"));
+        return Ok(());
+    }
+
     let cli = Cli::parse();
     match cli.command {
         Commands::PrintToken { skew_seconds } => {
