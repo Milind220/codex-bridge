@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     strategy:
@@ -12,9 +15,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            target: x86_64-unknown-linux-musl
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-musl
+            target: x86_64-unknown-linux-gnu
           - os: macos-latest
             target: x86_64-apple-darwin
           - os: macos-latest
@@ -27,16 +28,25 @@ jobs:
         with:
           targets: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
-
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
-
       - name: Package
         run: |
           cp target/${{ matrix.target }}/release/codex-bridge codex-bridge
           tar -czf codex-bridge-${{ matrix.target }}.tar.gz codex-bridge
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: codex-bridge-${{ matrix.target }}.tar.gz
 
-      - name: Upload asset
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - name: Create release + upload assets
         uses: softprops/action-gh-release@v2
         with:
-          files: codex-bridge-${{ matrix.target }}.tar.gz
+          files: dist/**/*.tar.gz
