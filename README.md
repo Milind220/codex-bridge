@@ -6,6 +6,12 @@ Goal: reuse your existing ChatGPT/Codex login without copying API keys around.
 
 ## Install
 
+One-line installer (GitHub Releases):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Milind220/codex-bridge/main/install.sh | bash
+```
+
 From source:
 
 ```bash
